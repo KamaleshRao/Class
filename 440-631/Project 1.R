@@ -8,6 +8,11 @@ alldata$LOGGDPH<-log(alldata$GDPH)
 alldata$LOGDGDP<-log(alldata$DGDP)
 alldata$LOGPZRJOC<-log(alldata$PZRJOC)
 alldata$LOGPFABWC<-log(alldata$FABWC)
+spreadData<-read.csv("SpreadData.csv")
+colnames(spreadData)[1]<-"Date"
+spreadData$Date<-as.Date(spreadData$Date, format="%m/%d/%Y")
+
+
   
 break1<-as.Date("6/30/1983", format="%m/%d/%Y")
 break2<-as.Date("6/30/1990", format="%m/%d/%Y")
@@ -72,3 +77,16 @@ summary(var3c$varresult$LOGGDP)
 summary(var3a$varresult$LOGPFABWC)
 summary(var3b$varresult$LOGPFABWC)
 summary(var3c$varresult$LOGPFABWC)
+
+modData<-merge(alldata, spreadData, by="Date", all.x=TRUE)
+moddata2<-modData[modData$Date>=break2 & modData$Date<break3,]
+
+mod4Vars<-c("FFED","FTCIL","LOGGDPH","LOGDGDP","LOGPZRJOC")
+
+var4a<-VAR(moddata2[,c("FTCIL","LOGPFABWC","Spread")], p=4)
+
+var4b<-VAR(moddata2[,c("FFED","FTCIL","LOGGDPH","LOGPFABWC","LOGDGDP","LOGPZRJOC", "Spread")], p=4)
+
+summary(var4b$varresult$FTCIL)
+summary(var4b$varresult$LOGGDP)
+summary(var4b$varresult$LOGPFABWC)
