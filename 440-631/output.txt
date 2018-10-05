@@ -1,0 +1,1228 @@
+
+> library(vars)
+
+> workdir<-"C:/My Crap/Lurn/Class/Finance and the Macroeconomy(JHU)/Project 1"
+
+> setwd(workdir)
+
+> alldata<-read.csv("alldata.csv",colClasses=c("character", rep("numeric",6), "character"),na.strings='#N/A')
+
+> alldata$Date<-as.Date(alldata$Date, format="%m/%d/%Y")
+
+> alldata<-subset(alldata,select=-c(X))
+
+> alldata$LOGGDPH<-log(alldata$GDPH)
+
+> alldata$LOGDGDP<-log(alldata$DGDP)
+
+> alldata$LOGPZRJOC<-log(alldata$PZRJOC)
+
+> alldata$LOGPFABWC<-log(alldata$FABWC)
+
+> break1<-as.Date("6/30/1983", format="%m/%d/%Y")
+
+> break2<-as.Date("6/30/1990", format="%m/%d/%Y")
+
+> break3<-as.Date("9/30/2010", format="%m/%d/%Y")
+
+> break4<-as.Date("6/30/2002", format="%m/%d/%Y")
+
+> allVars<-c("FFED","FTCIL","LOGGDPH","LOGDGDP","LOGPZRJOC","LOGPFABWC")
+
+> data1<-alldata[alldata$Date<=break1,]
+
+> data2<-alldata[alldata$Date>=break2 & alldata$Date<break3,]
+
+> data3<-alldata[alldata$Date<=break1 | (alldata$Date>=break2 & alldata$Date<=break4),]
+
+> var0a<-VAR(data1[,allVars], p=4)
+
+> var0b<-VAR(data2[,allVars], p=4)
+
+> summary(var0a$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-21.6400  -5.3972  -0.6253   5.1739  20.9371 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)   
+FFED.l1      -1.879e+00  1.702e+00  -1.104  0.27668   
+FTCIL.l1      2.599e-01  1.613e-01   1.611  0.11567   
+LOGGDPH.l1    1.209e+02  2.171e+02   0.557  0.58091   
+LOGDGDP.l1   -1.066e+03  6.203e+02  -1.719  0.09401 . 
+LOGPZRJOC.l1  1.019e+02  6.430e+01   1.584  0.12162   
+LOGPFABWC.l1  4.898e+02  1.678e+02   2.919  0.00594 **
+FFED.l2       9.997e-01  2.034e+00   0.491  0.62600   
+FTCIL.l2     -1.052e-01  1.799e-01  -0.585  0.56214   
+LOGGDPH.l2   -1.066e+02  2.458e+02  -0.434  0.66712   
+LOGDGDP.l2   -1.026e+02  8.508e+02  -0.121  0.90470   
+LOGPZRJOC.l2 -6.357e+01  9.892e+01  -0.643  0.52442   
+LOGPFABWC.l2 -3.420e+02  3.224e+02  -1.061  0.29564   
+FFED.l3       5.706e-01  2.159e+00   0.264  0.79303   
+FTCIL.l3     -1.047e-02  1.756e-01  -0.060  0.95279   
+LOGGDPH.l3   -1.743e+02  2.253e+02  -0.774  0.44409   
+LOGDGDP.l3    2.382e+02  8.479e+02   0.281  0.78034   
+LOGPZRJOC.l3  2.552e+01  1.024e+02   0.249  0.80462   
+LOGPFABWC.l3  8.671e+01  3.196e+02   0.271  0.78768   
+FFED.l4       4.974e-01  1.890e+00   0.263  0.79387   
+FTCIL.l4      1.328e-01  1.835e-01   0.723  0.47398   
+LOGGDPH.l4    4.919e+01  1.978e+02   0.249  0.80501   
+LOGDGDP.l4    6.549e+02  6.136e+02   1.067  0.29274   
+LOGPZRJOC.l4  4.705e+01  7.042e+01   0.668  0.50813   
+LOGPFABWC.l4 -1.029e+02  1.696e+02  -0.607  0.54767   
+const         8.107e+02  9.229e+02   0.878  0.38540   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 11.21 on 37 degrees of freedom
+Multiple R-squared:  0.7935,	Adjusted R-squared:  0.6596 
+F-statistic: 5.926 on 24 and 37 DF,  p-value: 8.437e-07
+
+
+> summary(var0b$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-19.6924  -4.3169  -0.5976   3.7293  21.8736 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)   
+FFED.l1         0.50447    4.40485   0.115  0.90926   
+FTCIL.l1        0.45577    0.16843   2.706  0.00919 **
+LOGGDPH.l1   -709.99605  339.22711  -2.093  0.04125 * 
+LOGDGDP.l1    524.14447  819.13832   0.640  0.52506   
+LOGPZRJOC.l1   25.42235   44.61916   0.570  0.57129   
+LOGPFABWC.l1  306.37390  132.29565   2.316  0.02454 * 
+FFED.l2       -10.22392    7.22998  -1.414  0.16329   
+FTCIL.l2       -0.11291    0.17941  -0.629  0.53188   
+LOGGDPH.l2    153.84504  386.73579   0.398  0.69240   
+LOGDGDP.l2   -933.98452 1115.51740  -0.837  0.40627   
+LOGPZRJOC.l2   39.87835   59.30214   0.672  0.50427   
+LOGPFABWC.l2 -198.02866  234.70367  -0.844  0.40268   
+FFED.l3         7.25469    7.97687   0.909  0.36730   
+FTCIL.l3        0.07528    0.18846   0.399  0.69122   
+LOGGDPH.l3    435.85991  395.95146   1.101  0.27606   
+LOGDGDP.l3    798.49464 1106.27429   0.722  0.47366   
+LOGPZRJOC.l3  -76.42735   57.70602  -1.324  0.19115   
+LOGPFABWC.l3   42.57014  234.28340   0.182  0.85652   
+FFED.l4         1.05835    4.88662   0.217  0.82938   
+FTCIL.l4       -0.26695    0.16908  -1.579  0.12044   
+LOGGDPH.l4     17.88450  306.72409   0.058  0.95373   
+LOGDGDP.l4   -520.40145  786.45300  -0.662  0.51108   
+LOGPZRJOC.l4  -27.91296   41.25825  -0.677  0.50169   
+LOGPFABWC.l4   -8.68290  139.44681  -0.062  0.95059   
+const         769.22173  343.41656   2.240  0.02940 * 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 8.822 on 52 degrees of freedom
+Multiple R-squared:  0.9049,	Adjusted R-squared:  0.8611 
+F-statistic: 20.63 on 24 and 52 DF,  p-value: < 2.2e-16
+
+
+> summary(var0a$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0168986 -0.0038058 -0.0003139  0.0035894  0.0176423 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       2.722e-03  1.262e-03   2.157 0.037579 *  
+FTCIL.l1     -1.981e-04  1.196e-04  -1.656 0.106091    
+LOGGDPH.l1    5.878e-01  1.610e-01   3.652 0.000801 ***
+LOGDGDP.l1    5.707e-01  4.599e-01   1.241 0.222453    
+LOGPZRJOC.l1  2.684e-02  4.767e-02   0.563 0.576879    
+LOGPFABWC.l1 -5.482e-02  1.244e-01  -0.441 0.662035    
+FFED.l2      -5.951e-03  1.508e-03  -3.946 0.000342 ***
+FTCIL.l2     -1.176e-04  1.334e-04  -0.882 0.383548    
+LOGGDPH.l2    3.503e-02  1.823e-01   0.192 0.848635    
+LOGDGDP.l2   -1.683e-01  6.308e-01  -0.267 0.791170    
+LOGPZRJOC.l2 -1.077e-01  7.335e-02  -1.468 0.150585    
+LOGPFABWC.l2  2.839e-01  2.390e-01   1.187 0.242619    
+FFED.l3       1.745e-03  1.601e-03   1.090 0.282885    
+FTCIL.l3      6.432e-05  1.302e-04   0.494 0.624234    
+LOGGDPH.l3    9.716e-02  1.671e-01   0.582 0.564428    
+LOGDGDP.l3   -3.547e-01  6.287e-01  -0.564 0.576069    
+LOGPZRJOC.l3  6.655e-02  7.594e-02   0.876 0.386495    
+LOGPFABWC.l3 -3.038e-01  2.370e-01  -1.282 0.207912    
+FFED.l4      -3.031e-03  1.401e-03  -2.163 0.037109 *  
+FTCIL.l4      7.128e-05  1.361e-04   0.524 0.603549    
+LOGGDPH.l4    1.689e-01  1.467e-01   1.152 0.256885    
+LOGDGDP.l4    4.204e-02  4.549e-01   0.092 0.926879    
+LOGPZRJOC.l4 -3.755e-02  5.221e-02  -0.719 0.476560    
+LOGPFABWC.l4  9.722e-02  1.257e-01   0.773 0.444250    
+const         7.637e-01  6.843e-01   1.116 0.271596    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.008313 on 37 degrees of freedom
+Multiple R-squared:  0.9975,	Adjusted R-squared:  0.9959 
+F-statistic:   612 on 24 and 37 DF,  p-value: < 2.2e-16
+
+
+> summary(var0b$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0062137 -0.0024486 -0.0001515  0.0023764  0.0090222 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -3.090e-03  2.015e-03  -1.534 0.131162    
+FTCIL.l1     -1.749e-04  7.705e-05  -2.270 0.027412 *  
+LOGGDPH.l1    6.477e-01  1.552e-01   4.174 0.000114 ***
+LOGDGDP.l1   -6.635e-01  3.747e-01  -1.771 0.082492 .  
+LOGPZRJOC.l1  2.226e-02  2.041e-02   1.090 0.280531    
+LOGPFABWC.l1 -1.589e-02  6.052e-02  -0.263 0.793862    
+FFED.l2       4.790e-03  3.307e-03   1.448 0.153567    
+FTCIL.l2     -1.116e-04  8.207e-05  -1.360 0.179662    
+LOGGDPH.l2    3.193e-01  1.769e-01   1.805 0.076892 .  
+LOGDGDP.l2    5.414e-01  5.103e-01   1.061 0.293629    
+LOGPZRJOC.l2 -4.953e-02  2.713e-02  -1.826 0.073625 .  
+LOGPFABWC.l2 -5.565e-02  1.074e-01  -0.518 0.606430    
+FFED.l3      -1.452e-03  3.649e-03  -0.398 0.692254    
+FTCIL.l3     -2.623e-04  8.621e-05  -3.043 0.003672 ** 
+LOGGDPH.l3   -1.144e-01  1.811e-01  -0.632 0.530325    
+LOGDGDP.l3    2.332e-01  5.061e-01   0.461 0.646901    
+LOGPZRJOC.l3 -1.100e-02  2.640e-02  -0.417 0.678495    
+LOGPFABWC.l3  1.011e-01  1.072e-01   0.944 0.349734    
+FFED.l4       5.162e-04  2.235e-03   0.231 0.818278    
+FTCIL.l4      7.127e-05  7.735e-05   0.921 0.361067    
+LOGGDPH.l4    1.454e-01  1.403e-01   1.036 0.304918    
+LOGDGDP.l4   -1.683e-01  3.598e-01  -0.468 0.641778    
+LOGPZRJOC.l4  2.024e-02  1.887e-02   1.073 0.288414    
+LOGPFABWC.l4  5.834e-03  6.379e-02   0.091 0.927482    
+const         1.352e-01  1.571e-01   0.860 0.393481    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.004036 on 52 degrees of freedom
+Multiple R-squared:  0.9996,	Adjusted R-squared:  0.9994 
+F-statistic:  5272 on 24 and 52 DF,  p-value: < 2.2e-16
+
+
+> summary(var0a$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.021553 -0.006471 -0.000842  0.006899  0.016919 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -0.0025421  0.0016152  -1.574  0.12402    
+FTCIL.l1     -0.0002853  0.0001531  -1.863  0.07037 .  
+LOGGDPH.l1   -0.0824103  0.2060378  -0.400  0.69147    
+LOGDGDP.l1    0.0684230  0.5886857   0.116  0.90810    
+LOGPZRJOC.l1  0.1213970  0.0610192   1.989  0.05408 .  
+LOGPFABWC.l1  1.6257439  0.1592503  10.209  2.6e-12 ***
+FFED.l2       0.0036984  0.0019306   1.916  0.06316 .  
+FTCIL.l2     -0.0003070  0.0001708  -1.798  0.08039 .  
+LOGGDPH.l2    0.3403446  0.2333053   1.459  0.15306    
+LOGDGDP.l2   -0.7651102  0.8074666  -0.948  0.34951    
+LOGPZRJOC.l2 -0.2013553  0.0938835  -2.145  0.03861 *  
+LOGPFABWC.l2 -1.0148497  0.3059791  -3.317  0.00205 ** 
+FFED.l3      -0.0034447  0.0020491  -1.681  0.10117    
+FTCIL.l3     -0.0002314  0.0001667  -1.388  0.17332    
+LOGGDPH.l3   -0.0710789  0.2138558  -0.332  0.74149    
+LOGDGDP.l3    0.1553554  0.8046983   0.193  0.84797    
+LOGPZRJOC.l3  0.2085014  0.0972020   2.145  0.03858 *  
+LOGPFABWC.l3  0.7886479  0.3033437   2.600  0.01332 *  
+FFED.l4       0.0034903  0.0017937   1.946  0.05930 .  
+FTCIL.l4     -0.0000313  0.0001742  -0.180  0.85836    
+LOGGDPH.l4    0.0749036  0.1877572   0.399  0.69223    
+LOGDGDP.l4    0.3485436  0.5823227   0.599  0.55313    
+LOGPZRJOC.l4 -0.0921536  0.0668291  -1.379  0.17619    
+LOGPFABWC.l4 -0.3915319  0.1609134  -2.433  0.01992 *  
+const        -1.7213657  0.8758749  -1.965  0.05692 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.01064 on 37 degrees of freedom
+Multiple R-squared:  0.9997,	Adjusted R-squared:  0.9994 
+F-statistic:  4560 on 24 and 37 DF,  p-value: < 2.2e-16
+
+
+> summary(var0b$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0236992 -0.0044886 -0.0005107  0.0047075  0.0159040 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       0.0153532  0.0045362   3.385  0.00136 ** 
+FTCIL.l1     -0.0002006  0.0001735  -1.157  0.25272    
+LOGGDPH.l1   -0.4543202  0.3493412  -1.301  0.19916    
+LOGDGDP.l1    0.4433771  0.8435610   0.526  0.60140    
+LOGPZRJOC.l1  0.0441732  0.0459495   0.961  0.34083    
+LOGPFABWC.l1  1.5044070  0.1362401  11.042 3.03e-15 ***
+FFED.l2      -0.0232524  0.0074455  -3.123  0.00292 ** 
+FTCIL.l2     -0.0001265  0.0001848  -0.685  0.49652    
+LOGGDPH.l2   -0.0596657  0.3982664  -0.150  0.88149    
+LOGDGDP.l2   -1.6372380  1.1487767  -1.425  0.16007    
+LOGPZRJOC.l2  0.0303756  0.0610702   0.497  0.62101    
+LOGPFABWC.l2 -0.4025049  0.2417014  -1.665  0.10187    
+FFED.l3       0.0041214  0.0082147   0.502  0.61799    
+FTCIL.l3     -0.0001661  0.0001941  -0.856  0.39597    
+LOGGDPH.l3    0.7957228  0.4077568   1.951  0.05640 .  
+LOGDGDP.l3    1.5117578  1.1392580   1.327  0.19032    
+LOGPZRJOC.l3 -0.0380829  0.0594265  -0.641  0.52444    
+LOGPFABWC.l3 -0.3166117  0.2412686  -1.312  0.19519    
+FFED.l4       0.0088216  0.0050323   1.753  0.08550 .  
+FTCIL.l4     -0.0002705  0.0001741  -1.554  0.12633    
+LOGGDPH.l4   -0.2370234  0.3158691  -0.750  0.45640    
+LOGDGDP.l4   -0.4179725  0.8099012  -0.516  0.60799    
+LOGPZRJOC.l4 -0.0257186  0.0424884  -0.605  0.54761    
+LOGPFABWC.l4  0.2515636  0.1436044   1.752  0.08571 .  
+const        -0.2668954  0.3536556  -0.755  0.45385    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.009085 on 52 degrees of freedom
+Multiple R-squared:  0.9993,	Adjusted R-squared:  0.999 
+F-statistic:  3105 on 24 and 52 DF,  p-value: < 2.2e-16
+
+
+> mod1Vars<-c("FFED","LOGGDPH","LOGPFABWC","LOGDGDP","LOGPZRJOC")
+
+> var1a<-VAR(data1[,mod1Vars], p=4)
+
+> var1b<-VAR(data2[,mod1Vars], p=4)
+
+> var1c<-VAR(data3[,mod1Vars], p=4)
+
+> summary(var1a$varresult$FTCIL)
+Length  Class   Mode 
+     0   NULL   NULL 
+
+> summary(var1b$varresult$FTCIL)
+Length  Class   Mode 
+     0   NULL   NULL 
+
+> summary(var1c$varresult$FTCIL)
+Length  Class   Mode 
+     0   NULL   NULL 
+
+> summary(var1a$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0147595 -0.0046896 -0.0009965  0.0045435  0.0178974 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       0.001847   0.001177   1.568 0.124499    
+LOGGDPH.l1    0.623051   0.159299   3.911 0.000338 ***
+LOGPFABWC.l1 -0.047115   0.116233  -0.405 0.687330    
+LOGDGDP.l1    0.820836   0.446247   1.839 0.073102 .  
+LOGPZRJOC.l1  0.053078   0.044285   1.199 0.237581    
+FFED.l2      -0.005072   0.001443  -3.515 0.001087 ** 
+LOGGDPH.l2    0.003107   0.182244   0.017 0.986483    
+LOGPFABWC.l2  0.121112   0.226641   0.534 0.595967    
+LOGDGDP.l2   -0.167237   0.616069  -0.271 0.787401    
+LOGPZRJOC.l2 -0.143732   0.071982  -1.997 0.052516 .  
+FFED.l3       0.002097   0.001572   1.334 0.189496    
+LOGGDPH.l3    0.098171   0.164720   0.596 0.554462    
+LOGPFABWC.l3 -0.235708   0.226001  -1.043 0.303083    
+LOGDGDP.l3   -0.246694   0.621965  -0.397 0.693692    
+LOGPZRJOC.l3  0.056049   0.074816   0.749 0.458038    
+FFED.l4      -0.003038   0.001341  -2.266 0.028820 *  
+LOGGDPH.l4    0.200638   0.141086   1.422 0.162560    
+LOGPFABWC.l4  0.133830   0.117193   1.142 0.260095    
+LOGDGDP.l4   -0.236988   0.438801  -0.540 0.592062    
+LOGPZRJOC.l4 -0.038554   0.051329  -0.751 0.456877    
+const         0.509760   0.666930   0.764 0.449043    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.008396 on 41 degrees of freedom
+Multiple R-squared:  0.9972,	Adjusted R-squared:  0.9958 
+F-statistic: 719.8 on 20 and 41 DF,  p-value: < 2.2e-16
+
+
+> summary(var1b$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0086148 -0.0028127 -0.0003931  0.0021860  0.0124946 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -0.0006404  0.0021020  -0.305   0.7618    
+LOGGDPH.l1    0.9840878  0.1489463   6.607 1.54e-08 ***
+LOGPFABWC.l1 -0.0136274  0.0681276  -0.200   0.8422    
+LOGDGDP.l1   -0.4695078  0.4174880  -1.125   0.2656    
+LOGPZRJOC.l1  0.0068495  0.0225625   0.304   0.7626    
+FFED.l2       0.0038285  0.0036061   1.062   0.2929    
+LOGGDPH.l2    0.2945501  0.2043251   1.442   0.1550    
+LOGPFABWC.l2 -0.0883591  0.1240270  -0.712   0.4792    
+LOGDGDP.l2    0.1107592  0.5805810   0.191   0.8494    
+LOGPZRJOC.l2 -0.0296517  0.0311982  -0.950   0.3460    
+FFED.l3       0.0001269  0.0040796   0.031   0.9753    
+LOGGDPH.l3   -0.2744990  0.2018631  -1.360   0.1793    
+LOGPFABWC.l3  0.0070034  0.1207035   0.058   0.9539    
+LOGDGDP.l3    0.3027839  0.5692001   0.532   0.5969    
+LOGPZRJOC.l3 -0.0145982  0.0304611  -0.479   0.6336    
+FFED.l4      -0.0015341  0.0025014  -0.613   0.5421    
+LOGGDPH.l4    0.0323418  0.1546929   0.209   0.8352    
+LOGPFABWC.l4  0.0627743  0.0649590   0.966   0.3380    
+LOGDGDP.l4    0.0778530  0.4135651   0.188   0.8514    
+LOGPZRJOC.l4  0.0370023  0.0216163   1.712   0.0925 .  
+const        -0.2106740  0.1508155  -1.397   0.1680    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.004796 on 56 degrees of freedom
+Multiple R-squared:  0.9994,	Adjusted R-squared:  0.9992 
+F-statistic:  4478 on 20 and 56 DF,  p-value: < 2.2e-16
+
+
+> summary(var1c$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.043801 -0.008695 -0.001265  0.006747  0.200644 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       0.002663   0.002814   0.946 0.346483    
+LOGGDPH.l1    1.443000   0.350899   4.112 8.64e-05 ***
+LOGPFABWC.l1 -0.181305   0.255487  -0.710 0.479757    
+LOGDGDP.l1   -0.487910   0.564732  -0.864 0.389902    
+LOGPZRJOC.l1  0.018071   0.083798   0.216 0.829753    
+FFED.l2      -0.005648   0.003940  -1.434 0.155178    
+LOGGDPH.l2   -0.292449   0.473318  -0.618 0.538221    
+LOGPFABWC.l2  0.289140   0.454427   0.636 0.526212    
+LOGDGDP.l2   -0.310820   0.995075  -0.312 0.755490    
+LOGPZRJOC.l2  0.065368   0.147314   0.444 0.658303    
+FFED.l3       0.004382   0.004164   1.052 0.295490    
+LOGGDPH.l3   -0.367825   0.438039  -0.840 0.403297    
+LOGPFABWC.l3  0.239220   0.444302   0.538 0.591618    
+LOGDGDP.l3    0.048579   0.977920   0.050 0.960491    
+LOGPZRJOC.l3 -0.067771   0.162524  -0.417 0.677679    
+FFED.l4      -0.002796   0.003303  -0.847 0.399518    
+LOGGDPH.l4   -0.126280   0.311146  -0.406 0.685813    
+LOGPFABWC.l4 -0.175614   0.225283  -0.780 0.437715    
+LOGDGDP.l4    0.686070   0.576959   1.189 0.237523    
+LOGPZRJOC.l4 -0.013960   0.104444  -0.134 0.893968    
+const         2.303290   0.669266   3.442 0.000879 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.02596 on 90 degrees of freedom
+Multiple R-squared:  0.9952,	Adjusted R-squared:  0.9941 
+F-statistic: 934.3 on 20 and 90 DF,  p-value: < 2.2e-16
+
+
+> summary(var1a$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0226725 -0.0073631 -0.0003003  0.0067644  0.0259707 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -0.003519   0.001669  -2.108 0.041195 *  
+LOGGDPH.l1    0.047784   0.225863   0.212 0.833498    
+LOGPFABWC.l1  1.776184   0.164802  10.778 1.56e-13 ***
+LOGDGDP.l1    0.339132   0.632717   0.536 0.594859    
+LOGPZRJOC.l1  0.143367   0.062789   2.283 0.027666 *  
+FFED.l2       0.004352   0.002046   2.128 0.039436 *  
+LOGGDPH.l2    0.363028   0.258397   1.405 0.167577    
+LOGPFABWC.l2 -1.360673   0.321346  -4.234 0.000126 ***
+LOGDGDP.l2   -0.601213   0.873502  -0.688 0.495153    
+LOGPZRJOC.l2 -0.242721   0.102060  -2.378 0.022139 *  
+FFED.l3      -0.002684   0.002229  -1.205 0.235286    
+LOGGDPH.l3   -0.143565   0.233551  -0.615 0.542146    
+LOGPFABWC.l3  0.720148   0.320439   2.247 0.030060 *  
+LOGDGDP.l3    0.361170   0.881861   0.410 0.684265    
+LOGPZRJOC.l3  0.222937   0.106078   2.102 0.041774 *  
+FFED.l4       0.004179   0.001901   2.198 0.033667 *  
+LOGGDPH.l4   -0.018973   0.200040  -0.095 0.924898    
+LOGPFABWC.l4 -0.273976   0.166164  -1.649 0.106826    
+LOGDGDP.l4   -0.011263   0.622159  -0.018 0.985645    
+LOGPZRJOC.l4 -0.130865   0.072778  -1.798 0.079519 .  
+const        -1.692243   0.945614  -1.790 0.080911 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0119 on 41 degrees of freedom
+Multiple R-squared:  0.9995,	Adjusted R-squared:  0.9993 
+F-statistic:  4372 on 20 and 41 DF,  p-value: < 2.2e-16
+
+
+> summary(var1b$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0243739 -0.0047865 -0.0000394  0.0050202  0.0171236 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       0.017903   0.004087   4.381 5.24e-05 ***
+LOGGDPH.l1    0.040314   0.289569   0.139  0.88977    
+LOGPFABWC.l1  1.513483   0.132448  11.427 2.92e-16 ***
+LOGDGDP.l1    0.549285   0.811647   0.677  0.50135    
+LOGPZRJOC.l1  0.024569   0.043864   0.560  0.57763    
+FFED.l2      -0.024204   0.007011  -3.452  0.00106 ** 
+LOGGDPH.l2    0.085101   0.397233   0.214  0.83114    
+LOGPFABWC.l2 -0.459436   0.241123  -1.905  0.06187 .  
+LOGDGDP.l2   -1.534661   1.128719  -1.360  0.17939    
+LOGPZRJOC.l2  0.031362   0.060653   0.517  0.60715    
+FFED.l3       0.006163   0.007931   0.777  0.44043    
+LOGGDPH.l3    0.492449   0.392446   1.255  0.21476    
+LOGPFABWC.l3 -0.289109   0.234662  -1.232  0.22309    
+LOGDGDP.l3    0.975544   1.106593   0.882  0.38178    
+LOGPZRJOC.l3 -0.017825   0.059220  -0.301  0.76454    
+FFED.l4       0.006065   0.004863   1.247  0.21756    
+LOGGDPH.l4   -0.524876   0.300741  -1.745  0.08642 .  
+LOGPFABWC.l4  0.171448   0.126288   1.358  0.18004    
+LOGDGDP.l4    0.042813   0.804020   0.053  0.95772    
+LOGPZRJOC.l4 -0.004858   0.042025  -0.116  0.90838    
+const        -0.752935   0.293203  -2.568  0.01293 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.009325 on 56 degrees of freedom
+Multiple R-squared:  0.9992,	Adjusted R-squared:  0.9989 
+F-statistic:  3537 on 20 and 56 DF,  p-value: < 2.2e-16
+
+
+> summary(var1c$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.09678 -0.01202 -0.00020  0.00930  0.35775 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)  
+FFED.l1       0.0015476  0.0049396   0.313   0.7548  
+LOGGDPH.l1    0.9624582  0.6158760   1.563   0.1216  
+LOGPFABWC.l1  1.0609274  0.4484144   2.366   0.0201 *
+LOGDGDP.l1   -1.9413390  0.9911825  -1.959   0.0533 .
+LOGPZRJOC.l1  0.1487246  0.1470767   1.011   0.3146  
+FFED.l2      -0.0002123  0.0069152  -0.031   0.9756  
+LOGGDPH.l2   -0.3893209  0.8307398  -0.469   0.6405  
+LOGPFABWC.l2 -0.0731475  0.7975825  -0.092   0.9271  
+LOGDGDP.l2    0.6891613  1.7464948   0.395   0.6941  
+LOGPZRJOC.l2  0.1122603  0.2585565   0.434   0.6652  
+FFED.l3       0.0035911  0.0073087   0.491   0.6244  
+LOGGDPH.l3   -0.6026438  0.7688201  -0.784   0.4352  
+LOGPFABWC.l3  0.5870350  0.7798123   0.753   0.4535  
+LOGDGDP.l3   -0.3383883  1.7163852  -0.197   0.8442  
+LOGPZRJOC.l3 -0.1373700  0.2852521  -0.482   0.6313  
+FFED.l4      -0.0007233  0.0057970  -0.125   0.9010  
+LOGGDPH.l4   -0.3147483  0.5461037  -0.576   0.5658  
+LOGPFABWC.l4 -0.4025242  0.3954032  -1.018   0.3114  
+LOGDGDP.l4    1.4830846  1.0126442   1.465   0.1465  
+LOGPZRJOC.l4 -0.0813035  0.1833140  -0.444   0.6585  
+const         2.2862125  1.1746542   1.946   0.0547 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.04557 on 90 degrees of freedom
+Multiple R-squared:  0.9974,	Adjusted R-squared:  0.9968 
+F-statistic:  1718 on 20 and 90 DF,  p-value: < 2.2e-16
+
+
+> mod2Vars<-c("FFED","FTCIL","LOGGDPH","LOGPFABWC","LOGDGDP","LOGPZRJOC")
+
+> var2a<-VAR(data1[,mod2Vars], p=4)
+
+> var2b<-VAR(data2[,mod2Vars], p=4)
+
+> var2c<-VAR(data3[,mod2Vars], p=4)
+
+> summary(var2a$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-21.6400  -5.3972  -0.6253   5.1739  20.9371 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)   
+FFED.l1      -1.879e+00  1.702e+00  -1.104  0.27668   
+FTCIL.l1      2.599e-01  1.613e-01   1.611  0.11567   
+LOGGDPH.l1    1.209e+02  2.171e+02   0.557  0.58091   
+LOGPFABWC.l1  4.898e+02  1.678e+02   2.919  0.00594 **
+LOGDGDP.l1   -1.066e+03  6.203e+02  -1.719  0.09401 . 
+LOGPZRJOC.l1  1.019e+02  6.430e+01   1.584  0.12162   
+FFED.l2       9.997e-01  2.034e+00   0.491  0.62600   
+FTCIL.l2     -1.052e-01  1.799e-01  -0.585  0.56214   
+LOGGDPH.l2   -1.066e+02  2.458e+02  -0.434  0.66712   
+LOGPFABWC.l2 -3.420e+02  3.224e+02  -1.061  0.29564   
+LOGDGDP.l2   -1.026e+02  8.508e+02  -0.121  0.90470   
+LOGPZRJOC.l2 -6.357e+01  9.892e+01  -0.643  0.52442   
+FFED.l3       5.706e-01  2.159e+00   0.264  0.79303   
+FTCIL.l3     -1.047e-02  1.756e-01  -0.060  0.95279   
+LOGGDPH.l3   -1.743e+02  2.253e+02  -0.774  0.44409   
+LOGPFABWC.l3  8.671e+01  3.196e+02   0.271  0.78768   
+LOGDGDP.l3    2.382e+02  8.479e+02   0.281  0.78034   
+LOGPZRJOC.l3  2.552e+01  1.024e+02   0.249  0.80462   
+FFED.l4       4.974e-01  1.890e+00   0.263  0.79387   
+FTCIL.l4      1.328e-01  1.835e-01   0.723  0.47398   
+LOGGDPH.l4    4.919e+01  1.978e+02   0.249  0.80501   
+LOGPFABWC.l4 -1.029e+02  1.696e+02  -0.607  0.54767   
+LOGDGDP.l4    6.549e+02  6.136e+02   1.067  0.29274   
+LOGPZRJOC.l4  4.705e+01  7.042e+01   0.668  0.50813   
+const         8.107e+02  9.229e+02   0.878  0.38540   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 11.21 on 37 degrees of freedom
+Multiple R-squared:  0.7935,	Adjusted R-squared:  0.6596 
+F-statistic: 5.926 on 24 and 37 DF,  p-value: 8.437e-07
+
+
+> summary(var2b$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-19.6924  -4.3169  -0.5976   3.7293  21.8736 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)   
+FFED.l1         0.50447    4.40485   0.115  0.90926   
+FTCIL.l1        0.45577    0.16843   2.706  0.00919 **
+LOGGDPH.l1   -709.99605  339.22711  -2.093  0.04125 * 
+LOGPFABWC.l1  306.37390  132.29565   2.316  0.02454 * 
+LOGDGDP.l1    524.14447  819.13832   0.640  0.52506   
+LOGPZRJOC.l1   25.42235   44.61916   0.570  0.57129   
+FFED.l2       -10.22392    7.22998  -1.414  0.16329   
+FTCIL.l2       -0.11291    0.17941  -0.629  0.53188   
+LOGGDPH.l2    153.84504  386.73579   0.398  0.69240   
+LOGPFABWC.l2 -198.02866  234.70367  -0.844  0.40268   
+LOGDGDP.l2   -933.98452 1115.51740  -0.837  0.40627   
+LOGPZRJOC.l2   39.87835   59.30214   0.672  0.50427   
+FFED.l3         7.25469    7.97687   0.909  0.36730   
+FTCIL.l3        0.07528    0.18846   0.399  0.69122   
+LOGGDPH.l3    435.85991  395.95146   1.101  0.27606   
+LOGPFABWC.l3   42.57014  234.28340   0.182  0.85652   
+LOGDGDP.l3    798.49464 1106.27429   0.722  0.47366   
+LOGPZRJOC.l3  -76.42735   57.70602  -1.324  0.19115   
+FFED.l4         1.05835    4.88662   0.217  0.82938   
+FTCIL.l4       -0.26695    0.16908  -1.579  0.12044   
+LOGGDPH.l4     17.88450  306.72409   0.058  0.95373   
+LOGPFABWC.l4   -8.68290  139.44681  -0.062  0.95059   
+LOGDGDP.l4   -520.40145  786.45300  -0.662  0.51108   
+LOGPZRJOC.l4  -27.91296   41.25825  -0.677  0.50169   
+const         769.22173  343.41656   2.240  0.02940 * 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 8.822 on 52 degrees of freedom
+Multiple R-squared:  0.9049,	Adjusted R-squared:  0.8611 
+F-statistic: 20.63 on 24 and 52 DF,  p-value: < 2.2e-16
+
+
+> summary(var2c$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-34.625  -6.741  -1.027   5.178  41.485 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -1.076e+00  1.387e+00  -0.776 0.439670    
+FTCIL.l1      4.908e-01  1.261e-01   3.893 0.000195 ***
+LOGGDPH.l1    7.852e+01  1.739e+02   0.451 0.652831    
+LOGPFABWC.l1  2.365e+02  1.319e+02   1.793 0.076439 .  
+LOGDGDP.l1   -6.355e+02  3.112e+02  -2.042 0.044183 *  
+LOGPZRJOC.l1  6.591e+01  4.066e+01   1.621 0.108703    
+FFED.l2      -4.124e-02  1.896e+00  -0.022 0.982695    
+FTCIL.l2     -9.869e-03  1.504e-01  -0.066 0.947836    
+LOGGDPH.l2   -9.370e+01  2.265e+02  -0.414 0.680162    
+LOGPFABWC.l2 -1.662e+02  2.264e+02  -0.734 0.464939    
+LOGDGDP.l2    5.791e+02  4.875e+02   1.188 0.238210    
+LOGPZRJOC.l2  7.026e+00  7.100e+01   0.099 0.921406    
+FFED.l3       1.641e+00  1.987e+00   0.826 0.411271    
+FTCIL.l3      3.861e-02  1.515e-01   0.255 0.799465    
+LOGGDPH.l3   -6.055e+01  2.089e+02  -0.290 0.772616    
+LOGPFABWC.l3  5.318e+01  2.206e+02   0.241 0.810093    
+LOGDGDP.l3   -6.422e+01  4.815e+02  -0.133 0.894208    
+LOGPZRJOC.l3 -8.321e+01  7.974e+01  -1.044 0.299603    
+FFED.l4      -4.179e-01  1.603e+00  -0.261 0.795013    
+FTCIL.l4      1.383e-01  1.330e-01   1.040 0.301129    
+LOGGDPH.l4    3.183e+01  1.547e+02   0.206 0.837502    
+LOGPFABWC.l4 -4.720e+01  1.174e+02  -0.402 0.688551    
+LOGDGDP.l4    2.792e+01  2.953e+02   0.095 0.924894    
+LOGPZRJOC.l4  4.806e+00  5.100e+01   0.094 0.925136    
+const         3.323e+02  3.316e+02   1.002 0.319160    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 12.25 on 86 degrees of freedom
+Multiple R-squared:  0.721,	Adjusted R-squared:  0.6432 
+F-statistic: 9.261 on 24 and 86 DF,  p-value: 4.192e-15
+
+
+> summary(var2a$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0168986 -0.0038058 -0.0003139  0.0035894  0.0176423 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       2.722e-03  1.262e-03   2.157 0.037579 *  
+FTCIL.l1     -1.981e-04  1.196e-04  -1.656 0.106091    
+LOGGDPH.l1    5.878e-01  1.610e-01   3.652 0.000801 ***
+LOGPFABWC.l1 -5.482e-02  1.244e-01  -0.441 0.662035    
+LOGDGDP.l1    5.707e-01  4.599e-01   1.241 0.222453    
+LOGPZRJOC.l1  2.684e-02  4.767e-02   0.563 0.576879    
+FFED.l2      -5.951e-03  1.508e-03  -3.946 0.000342 ***
+FTCIL.l2     -1.176e-04  1.334e-04  -0.882 0.383548    
+LOGGDPH.l2    3.503e-02  1.823e-01   0.192 0.848635    
+LOGPFABWC.l2  2.839e-01  2.390e-01   1.187 0.242619    
+LOGDGDP.l2   -1.683e-01  6.308e-01  -0.267 0.791170    
+LOGPZRJOC.l2 -1.077e-01  7.335e-02  -1.468 0.150585    
+FFED.l3       1.745e-03  1.601e-03   1.090 0.282885    
+FTCIL.l3      6.432e-05  1.302e-04   0.494 0.624234    
+LOGGDPH.l3    9.716e-02  1.671e-01   0.582 0.564428    
+LOGPFABWC.l3 -3.038e-01  2.370e-01  -1.282 0.207912    
+LOGDGDP.l3   -3.547e-01  6.287e-01  -0.564 0.576069    
+LOGPZRJOC.l3  6.655e-02  7.594e-02   0.876 0.386495    
+FFED.l4      -3.031e-03  1.401e-03  -2.163 0.037109 *  
+FTCIL.l4      7.128e-05  1.361e-04   0.524 0.603549    
+LOGGDPH.l4    1.689e-01  1.467e-01   1.152 0.256885    
+LOGPFABWC.l4  9.722e-02  1.257e-01   0.773 0.444250    
+LOGDGDP.l4    4.204e-02  4.549e-01   0.092 0.926879    
+LOGPZRJOC.l4 -3.755e-02  5.221e-02  -0.719 0.476560    
+const         7.637e-01  6.843e-01   1.116 0.271596    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.008313 on 37 degrees of freedom
+Multiple R-squared:  0.9975,	Adjusted R-squared:  0.9959 
+F-statistic:   612 on 24 and 37 DF,  p-value: < 2.2e-16
+
+
+> summary(var2b$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0062137 -0.0024486 -0.0001515  0.0023764  0.0090222 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -3.090e-03  2.015e-03  -1.534 0.131162    
+FTCIL.l1     -1.749e-04  7.705e-05  -2.270 0.027412 *  
+LOGGDPH.l1    6.477e-01  1.552e-01   4.174 0.000114 ***
+LOGPFABWC.l1 -1.589e-02  6.052e-02  -0.263 0.793862    
+LOGDGDP.l1   -6.635e-01  3.747e-01  -1.771 0.082492 .  
+LOGPZRJOC.l1  2.226e-02  2.041e-02   1.090 0.280531    
+FFED.l2       4.790e-03  3.307e-03   1.448 0.153567    
+FTCIL.l2     -1.116e-04  8.207e-05  -1.360 0.179662    
+LOGGDPH.l2    3.193e-01  1.769e-01   1.805 0.076892 .  
+LOGPFABWC.l2 -5.565e-02  1.074e-01  -0.518 0.606430    
+LOGDGDP.l2    5.414e-01  5.103e-01   1.061 0.293629    
+LOGPZRJOC.l2 -4.953e-02  2.713e-02  -1.826 0.073625 .  
+FFED.l3      -1.452e-03  3.649e-03  -0.398 0.692254    
+FTCIL.l3     -2.623e-04  8.621e-05  -3.043 0.003672 ** 
+LOGGDPH.l3   -1.144e-01  1.811e-01  -0.632 0.530325    
+LOGPFABWC.l3  1.011e-01  1.072e-01   0.944 0.349734    
+LOGDGDP.l3    2.332e-01  5.061e-01   0.461 0.646901    
+LOGPZRJOC.l3 -1.100e-02  2.640e-02  -0.417 0.678495    
+FFED.l4       5.162e-04  2.235e-03   0.231 0.818278    
+FTCIL.l4      7.127e-05  7.735e-05   0.921 0.361067    
+LOGGDPH.l4    1.454e-01  1.403e-01   1.036 0.304918    
+LOGPFABWC.l4  5.834e-03  6.379e-02   0.091 0.927482    
+LOGDGDP.l4   -1.683e-01  3.598e-01  -0.468 0.641778    
+LOGPZRJOC.l4  2.024e-02  1.887e-02   1.073 0.288414    
+const         1.352e-01  1.571e-01   0.860 0.393481    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.004036 on 52 degrees of freedom
+Multiple R-squared:  0.9996,	Adjusted R-squared:  0.9994 
+F-statistic:  5272 on 24 and 52 DF,  p-value: < 2.2e-16
+
+
+> summary(var2c$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.044492 -0.008084 -0.000585  0.006230  0.196974 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       3.782e-03  2.963e-03   1.276 0.205308    
+FTCIL.l1     -2.858e-04  2.694e-04  -1.061 0.291709    
+LOGGDPH.l1    1.357e+00  3.717e-01   3.650 0.000450 ***
+LOGPFABWC.l1 -1.464e-01  2.818e-01  -0.519 0.604819    
+LOGDGDP.l1   -3.770e-01  6.650e-01  -0.567 0.572272    
+LOGPZRJOC.l1 -1.196e-02  8.690e-02  -0.138 0.890872    
+FFED.l2      -6.429e-03  4.051e-03  -1.587 0.116202    
+FTCIL.l2     -8.679e-06  3.214e-04  -0.027 0.978522    
+LOGGDPH.l2   -1.983e-01  4.841e-01  -0.410 0.683144    
+LOGPFABWC.l2  3.834e-01  4.839e-01   0.792 0.430297    
+LOGDGDP.l2   -6.721e-01  1.042e+00  -0.645 0.520571    
+LOGPZRJOC.l2  8.365e-02  1.517e-01   0.551 0.582856    
+FFED.l3       3.699e-03  4.247e-03   0.871 0.386217    
+FTCIL.l3     -2.494e-05  3.238e-04  -0.077 0.938786    
+LOGGDPH.l3   -3.520e-01  4.464e-01  -0.789 0.432526    
+LOGPFABWC.l3  2.142e-01  4.715e-01   0.454 0.650683    
+LOGDGDP.l3    1.014e-01  1.029e+00   0.099 0.921740    
+LOGPZRJOC.l3 -4.840e-02  1.704e-01  -0.284 0.777045    
+FFED.l4      -2.763e-03  3.427e-03  -0.806 0.422331    
+FTCIL.l4      3.373e-04  2.841e-04   1.187 0.238458    
+LOGGDPH.l4   -1.833e-01  3.307e-01  -0.554 0.580853    
+LOGPFABWC.l4 -2.603e-01  2.508e-01  -1.038 0.302171    
+LOGDGDP.l4    8.784e-01  6.310e-01   1.392 0.167498    
+LOGPZRJOC.l4 -2.837e-02  1.090e-01  -0.260 0.795229    
+const         2.535e+00  7.086e-01   3.577 0.000574 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.02618 on 86 degrees of freedom
+Multiple R-squared:  0.9953,	Adjusted R-squared:  0.994 
+F-statistic: 765.9 on 24 and 86 DF,  p-value: < 2.2e-16
+
+
+> summary(var2a$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.021553 -0.006471 -0.000842  0.006899  0.016919 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -0.0025421  0.0016152  -1.574  0.12402    
+FTCIL.l1     -0.0002853  0.0001531  -1.863  0.07037 .  
+LOGGDPH.l1   -0.0824103  0.2060378  -0.400  0.69147    
+LOGPFABWC.l1  1.6257439  0.1592503  10.209  2.6e-12 ***
+LOGDGDP.l1    0.0684230  0.5886857   0.116  0.90810    
+LOGPZRJOC.l1  0.1213970  0.0610192   1.989  0.05408 .  
+FFED.l2       0.0036984  0.0019306   1.916  0.06316 .  
+FTCIL.l2     -0.0003070  0.0001708  -1.798  0.08039 .  
+LOGGDPH.l2    0.3403446  0.2333053   1.459  0.15306    
+LOGPFABWC.l2 -1.0148497  0.3059791  -3.317  0.00205 ** 
+LOGDGDP.l2   -0.7651102  0.8074666  -0.948  0.34951    
+LOGPZRJOC.l2 -0.2013553  0.0938835  -2.145  0.03861 *  
+FFED.l3      -0.0034447  0.0020491  -1.681  0.10117    
+FTCIL.l3     -0.0002314  0.0001667  -1.388  0.17332    
+LOGGDPH.l3   -0.0710789  0.2138558  -0.332  0.74149    
+LOGPFABWC.l3  0.7886479  0.3033437   2.600  0.01332 *  
+LOGDGDP.l3    0.1553554  0.8046983   0.193  0.84797    
+LOGPZRJOC.l3  0.2085014  0.0972020   2.145  0.03858 *  
+FFED.l4       0.0034903  0.0017937   1.946  0.05930 .  
+FTCIL.l4     -0.0000313  0.0001742  -0.180  0.85836    
+LOGGDPH.l4    0.0749036  0.1877572   0.399  0.69223    
+LOGPFABWC.l4 -0.3915319  0.1609134  -2.433  0.01992 *  
+LOGDGDP.l4    0.3485436  0.5823227   0.599  0.55313    
+LOGPZRJOC.l4 -0.0921536  0.0668291  -1.379  0.17619    
+const        -1.7213657  0.8758749  -1.965  0.05692 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.01064 on 37 degrees of freedom
+Multiple R-squared:  0.9997,	Adjusted R-squared:  0.9994 
+F-statistic:  4560 on 24 and 37 DF,  p-value: < 2.2e-16
+
+
+> summary(var2b$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0236992 -0.0044886 -0.0005107  0.0047075  0.0159040 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       0.0153532  0.0045362   3.385  0.00136 ** 
+FTCIL.l1     -0.0002006  0.0001735  -1.157  0.25272    
+LOGGDPH.l1   -0.4543202  0.3493412  -1.301  0.19916    
+LOGPFABWC.l1  1.5044070  0.1362401  11.042 3.03e-15 ***
+LOGDGDP.l1    0.4433771  0.8435610   0.526  0.60140    
+LOGPZRJOC.l1  0.0441732  0.0459495   0.961  0.34083    
+FFED.l2      -0.0232524  0.0074455  -3.123  0.00292 ** 
+FTCIL.l2     -0.0001265  0.0001848  -0.685  0.49652    
+LOGGDPH.l2   -0.0596657  0.3982664  -0.150  0.88149    
+LOGPFABWC.l2 -0.4025049  0.2417014  -1.665  0.10187    
+LOGDGDP.l2   -1.6372380  1.1487767  -1.425  0.16007    
+LOGPZRJOC.l2  0.0303756  0.0610702   0.497  0.62101    
+FFED.l3       0.0041214  0.0082147   0.502  0.61799    
+FTCIL.l3     -0.0001661  0.0001941  -0.856  0.39597    
+LOGGDPH.l3    0.7957228  0.4077568   1.951  0.05640 .  
+LOGPFABWC.l3 -0.3166117  0.2412686  -1.312  0.19519    
+LOGDGDP.l3    1.5117578  1.1392580   1.327  0.19032    
+LOGPZRJOC.l3 -0.0380829  0.0594265  -0.641  0.52444    
+FFED.l4       0.0088216  0.0050323   1.753  0.08550 .  
+FTCIL.l4     -0.0002705  0.0001741  -1.554  0.12633    
+LOGGDPH.l4   -0.2370234  0.3158691  -0.750  0.45640    
+LOGPFABWC.l4  0.2515636  0.1436044   1.752  0.08571 .  
+LOGDGDP.l4   -0.4179725  0.8099012  -0.516  0.60799    
+LOGPZRJOC.l4 -0.0257186  0.0424884  -0.605  0.54761    
+const        -0.2668954  0.3536556  -0.755  0.45385    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.009085 on 52 degrees of freedom
+Multiple R-squared:  0.9993,	Adjusted R-squared:  0.999 
+F-statistic:  3105 on 24 and 52 DF,  p-value: < 2.2e-16
+
+
+> summary(var2c$varresult$LOGPFABWC)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.08781 -0.01595  0.00025  0.01069  0.35094 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)  
+FFED.l1       0.0033688  0.0052014   0.648   0.5189  
+FTCIL.l1     -0.0005091  0.0004729  -1.077   0.2847  
+LOGGDPH.l1    0.8167462  0.6525138   1.252   0.2141  
+LOGPFABWC.l1  1.1353348  0.4947285   2.295   0.0242 *
+LOGDGDP.l1   -1.7775889  1.1673472  -1.523   0.1315  
+LOGPZRJOC.l1  0.0969875  0.1525436   0.636   0.5266  
+FFED.l2      -0.0014896  0.0071116  -0.209   0.8346  
+FTCIL.l2      0.0000613  0.0005642   0.109   0.9137  
+LOGGDPH.l2   -0.2169906  0.8497370  -0.255   0.7991  
+LOGPFABWC.l2  0.0572081  0.8494099   0.067   0.9465  
+LOGDGDP.l2    0.0999405  1.8289272   0.055   0.9565  
+LOGPZRJOC.l2  0.1480454  0.2663551   0.556   0.5798  
+FFED.l3       0.0025262  0.0074549   0.339   0.7355  
+FTCIL.l3     -0.0001082  0.0005684  -0.190   0.8495  
+LOGGDPH.l3   -0.5878478  0.7836285  -0.750   0.4552  
+LOGPFABWC.l3  0.5654856  0.8276574   0.683   0.4963  
+LOGDGDP.l3   -0.2494775  1.8062860  -0.138   0.8905  
+LOGPZRJOC.l3 -0.1143637  0.2991129  -0.382   0.7032  
+FFED.l4      -0.0006994  0.0060149  -0.116   0.9077  
+FTCIL.l4      0.0006106  0.0004988   1.224   0.2242  
+LOGGDPH.l4   -0.4106019  0.5804871  -0.707   0.4813  
+LOGPFABWC.l4 -0.5562341  0.4402183  -1.264   0.2098  
+LOGDGDP.l4    1.8146949  1.1076487   1.638   0.1050  
+LOGPZRJOC.l4 -0.0991470  0.1913095  -0.518   0.6056  
+const         2.6613345  1.2438878   2.140   0.0352 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.04596 on 86 degrees of freedom
+Multiple R-squared:  0.9975,	Adjusted R-squared:  0.9968 
+F-statistic:  1408 on 24 and 86 DF,  p-value: < 2.2e-16
+
+
+> mod3Vars<-c("FFED","FTCIL","LOGGDPH","LOGDGDP","LOGPZRJOC")
+
+> var3a<-VAR(data1[,mod3Vars], p=4)
+
+> var3b<-VAR(data2[,mod3Vars], p=4)
+
+> var3c<-VAR(data3[,mod3Vars], p=4)
+
+> summary(var3a$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-22.993  -6.321  -1.446   7.110  25.711 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1        -2.02906    1.70706  -1.189 0.241424    
+FTCIL.l1        0.60596    0.15160   3.997 0.000261 ***
+LOGGDPH.l1    230.70008  249.08007   0.926 0.359758    
+LOGDGDP.l1   -353.64511  667.67704  -0.530 0.599201    
+LOGPZRJOC.l1  136.25520   71.27611   1.912 0.062927 .  
+FFED.l2         0.80461    2.05179   0.392 0.696980    
+FTCIL.l2       -0.08159    0.18363  -0.444 0.659131    
+LOGGDPH.l2   -199.87390  280.74569  -0.712 0.480534    
+LOGDGDP.l2   -138.84719  984.23044  -0.141 0.888504    
+LOGPZRJOC.l2  -89.63201  110.67640  -0.810 0.422698    
+FFED.l3         2.33752    2.18226   1.071 0.290369    
+FTCIL.l3       -0.05860    0.18755  -0.312 0.756280    
+LOGGDPH.l3   -103.26458  259.92047  -0.397 0.693212    
+LOGDGDP.l3   -119.76817  961.04812  -0.125 0.901431    
+LOGPZRJOC.l3  -24.35583  118.06409  -0.206 0.837583    
+FFED.l4         0.90880    2.01420   0.451 0.654225    
+FTCIL.l4       -0.08197    0.19065  -0.430 0.669461    
+LOGGDPH.l4    219.93297  221.91383   0.991 0.327463    
+LOGDGDP.l4    464.86076  643.09608   0.723 0.473877    
+LOGPZRJOC.l4   30.37421   75.49214   0.402 0.689517    
+const        -945.78912  845.99173  -1.118 0.270090    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 13.09 on 41 degrees of freedom
+Multiple R-squared:  0.6881,	Adjusted R-squared:  0.536 
+F-statistic: 4.523 on 20 and 41 DF,  p-value: 2.15e-05
+
+
+> summary(var3b$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-19.9436  -4.5178  -0.6609   4.3684  27.2852 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1         7.81678    4.25077   1.839   0.0712 .  
+FTCIL.l1        0.85091    0.14255   5.969 1.71e-07 ***
+LOGGDPH.l1   -555.00816  325.80727  -1.703   0.0940 .  
+LOGDGDP.l1    -73.76695  839.34200  -0.088   0.9303    
+LOGPZRJOC.l1    3.91376   44.08086   0.089   0.9296    
+FFED.l2       -13.69083    7.69032  -1.780   0.0805 .  
+FTCIL.l2       -0.09361    0.18652  -0.502   0.6177    
+LOGGDPH.l2    307.32482  414.90104   0.741   0.4620    
+LOGDGDP.l2   -894.61009 1189.56504  -0.752   0.4552    
+LOGPZRJOC.l2   66.24734   62.16607   1.066   0.2912    
+FFED.l3         4.90540    8.29055   0.592   0.5564    
+FTCIL.l3        0.11225    0.18478   0.608   0.5460    
+LOGGDPH.l3    437.48354  405.74025   1.078   0.2856    
+LOGDGDP.l3    579.91743 1129.61960   0.513   0.6097    
+LOGPZRJOC.l3  -64.45187   59.07221  -1.091   0.2799    
+FFED.l4         4.59841    5.01040   0.918   0.3627    
+FTCIL.l4       -0.20171    0.14051  -1.436   0.1567    
+LOGGDPH.l4   -135.94099  329.17001  -0.413   0.6812    
+LOGDGDP.l4    346.14157  724.42176   0.478   0.6346    
+LOGPZRJOC.l4   -7.93077   40.11069  -0.198   0.8440    
+const        -299.63041  215.85883  -1.388   0.1706    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 9.675 on 56 degrees of freedom
+Multiple R-squared:  0.8769,	Adjusted R-squared:  0.8329 
+F-statistic: 19.94 on 20 and 56 DF,  p-value: < 2.2e-16
+
+
+> summary(var3c$varresult$FTCIL)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-32.087  -6.241  -1.747   4.589  45.475 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -1.329e+00  1.365e+00  -0.974   0.3325    
+FTCIL.l1      6.252e-01  1.207e-01   5.179 1.35e-06 ***
+LOGGDPH.l1    2.813e+02  1.634e+02   1.721   0.0887 .  
+LOGDGDP.l1   -3.880e+02  2.183e+02  -1.777   0.0789 .  
+LOGPZRJOC.l1  7.761e+01  4.117e+01   1.885   0.0626 .  
+FFED.l2      -8.358e-02  1.844e+00  -0.045   0.9640    
+FTCIL.l2      3.171e-03  1.409e-01   0.023   0.9821    
+LOGGDPH.l2   -1.541e+02  2.188e+02  -0.704   0.4832    
+LOGDGDP.l2    2.944e+02  2.838e+02   1.037   0.3024    
+LOGPZRJOC.l2  1.765e+01  7.245e+01   0.244   0.8081    
+FFED.l3       3.005e+00  1.883e+00   1.596   0.1139    
+FTCIL.l3      4.660e-02  1.434e-01   0.325   0.7459    
+LOGGDPH.l3   -5.494e+01  2.034e+02  -0.270   0.7877    
+LOGDGDP.l3    5.539e+01  2.660e+02   0.208   0.8355    
+LOGPZRJOC.l3 -9.557e+01  8.157e+01  -1.172   0.2444    
+FFED.l4       5.341e-01  1.467e+00   0.364   0.7166    
+FTCIL.l4      3.782e-02  1.125e-01   0.336   0.7375    
+LOGGDPH.l4   -6.172e+00  1.566e+02  -0.039   0.9686    
+LOGDGDP.l4   -4.152e+00  2.099e+02  -0.020   0.9843    
+LOGPZRJOC.l4 -2.727e+00  5.186e+01  -0.053   0.9582    
+const        -4.137e+02  1.833e+02  -2.257   0.0264 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 12.62 on 90 degrees of freedom
+Multiple R-squared:  0.6904,	Adjusted R-squared:  0.6216 
+F-statistic: 10.04 on 20 and 90 DF,  p-value: 2.519e-15
+
+
+> summary(var3a$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.016619 -0.003772 -0.000511  0.003879  0.017746 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       2.052e-03  1.061e-03   1.934 0.060023 .  
+FTCIL.l1     -1.205e-04  9.420e-05  -1.279 0.208092    
+LOGGDPH.l1    5.837e-01  1.548e-01   3.772 0.000513 ***
+LOGDGDP.l1    7.699e-01  4.149e-01   1.856 0.070677 .  
+LOGPZRJOC.l1  2.537e-02  4.429e-02   0.573 0.569882    
+FFED.l2      -4.922e-03  1.275e-03  -3.861 0.000393 ***
+FTCIL.l2     -1.019e-04  1.141e-04  -0.894 0.376784    
+LOGGDPH.l2    6.660e-02  1.744e-01   0.382 0.704598    
+LOGDGDP.l2   -1.981e-01  6.116e-01  -0.324 0.747600    
+LOGPZRJOC.l2 -1.089e-01  6.877e-02  -1.583 0.121144    
+FFED.l3       9.336e-04  1.356e-03   0.689 0.494996    
+FTCIL.l3      2.431e-05  1.165e-04   0.209 0.835828    
+LOGGDPH.l3    7.590e-02  1.615e-01   0.470 0.640864    
+LOGDGDP.l3   -3.819e-01  5.972e-01  -0.639 0.526071    
+LOGPZRJOC.l3  6.888e-02  7.336e-02   0.939 0.353262    
+FFED.l4      -2.472e-03  1.252e-03  -1.975 0.054970 .  
+FTCIL.l4      4.525e-05  1.185e-04   0.382 0.704433    
+LOGGDPH.l4    1.916e-01  1.379e-01   1.390 0.172154    
+LOGDGDP.l4   -6.657e-02  3.996e-01  -0.167 0.868519    
+LOGPZRJOC.l4 -5.148e-02  4.691e-02  -1.097 0.278870    
+const         5.670e-01  5.257e-01   1.079 0.287045    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.008134 on 41 degrees of freedom
+Multiple R-squared:  0.9973,	Adjusted R-squared:  0.996 
+F-statistic:   767 on 20 and 41 DF,  p-value: < 2.2e-16
+
+
+> summary(var3b$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0064805 -0.0026031 -0.0001382  0.0022693  0.0098737 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1      -2.678e-03  1.801e-03  -1.487  0.14268    
+FTCIL.l1     -1.788e-04  6.040e-05  -2.961  0.00449 ** 
+LOGGDPH.l1    7.975e-01  1.380e-01   5.777  3.5e-07 ***
+LOGDGDP.l1   -4.275e-01  3.556e-01  -1.202  0.23444    
+LOGPZRJOC.l1  1.529e-03  1.868e-02   0.082  0.93505    
+FFED.l2       4.590e-03  3.258e-03   1.409  0.16445    
+FTCIL.l2     -7.572e-05  7.903e-05  -0.958  0.34210    
+LOGGDPH.l2    2.893e-01  1.758e-01   1.646  0.10544    
+LOGDGDP.l2    3.542e-01  5.040e-01   0.703  0.48518    
+LOGPZRJOC.l2 -3.631e-02  2.634e-02  -1.379  0.17350    
+FFED.l3      -1.302e-03  3.513e-03  -0.371  0.71227    
+FTCIL.l3     -1.713e-04  7.829e-05  -2.188  0.03288 *  
+LOGGDPH.l3   -2.300e-01  1.719e-01  -1.338  0.18643    
+LOGDGDP.l3   -1.242e-01  4.786e-01  -0.259  0.79625    
+LOGPZRJOC.l3 -7.814e-03  2.503e-02  -0.312  0.75604    
+FFED.l4       7.163e-04  2.123e-03   0.337  0.73706    
+FTCIL.l4      1.531e-04  5.954e-05   2.571  0.01282 *  
+LOGGDPH.l4    1.279e-01  1.395e-01   0.917  0.36324    
+LOGDGDP.l4    2.481e-01  3.069e-01   0.808  0.42239    
+LOGPZRJOC.l4  1.383e-02  1.700e-02   0.814  0.41907    
+const         5.815e-02  9.146e-02   0.636  0.52750    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.004099 on 56 degrees of freedom
+Multiple R-squared:  0.9995,	Adjusted R-squared:  0.9994 
+F-statistic:  6131 on 20 and 56 DF,  p-value: < 2.2e-16
+
+
+> summary(var3c$varresult$LOGGDP)
+
+Call:
+lm(formula = y ~ -1 + ., data = datamat)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.031081 -0.009831 -0.001394  0.006380  0.211730 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+FFED.l1       0.0018784  0.0029043   0.647   0.5194    
+FTCIL.l1     -0.0001324  0.0002569  -0.515   0.6077    
+LOGGDPH.l1    1.5941449  0.3478560   4.583 1.47e-05 ***
+LOGDGDP.l1   -0.9861236  0.4646008  -2.123   0.0365 *  
+LOGPZRJOC.l1  0.0098605  0.0876151   0.113   0.9106    
+FFED.l2      -0.0048076  0.0039256  -1.225   0.2239    
+FTCIL.l2      0.0002986  0.0002999   0.995   0.3222    
+LOGGDPH.l2   -0.0515275  0.4657092  -0.111   0.9121    
+LOGDGDP.l2   -0.0463136  0.6041212  -0.077   0.9391    
+LOGPZRJOC.l2  0.0665685  0.1542049   0.432   0.6670    
+FFED.l3       0.0045674  0.0040066   1.140   0.2573    
+FTCIL.l3      0.0001960  0.0003051   0.642   0.5223    
+LOGGDPH.l3   -0.4230935  0.4329880  -0.977   0.3311    
+LOGDGDP.l3    0.6250682  0.5660701   1.104   0.2724    
+LOGPZRJOC.l3 -0.0407036  0.1736017  -0.234   0.8152    
+FFED.l4       0.0005858  0.0031222   0.188   0.8516    
+FTCIL.l4      0.0001899  0.0002394   0.793   0.4298    
+LOGGDPH.l4   -0.2779036  0.3332541  -0.834   0.4065    
+LOGDGDP.l4    0.4943223  0.4467012   1.107   0.2714    
+LOGPZRJOC.l4 -0.0245380  0.1103712  -0.222   0.8246    
+const         1.0118672  0.3901230   2.594   0.0111 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.02685 on 90 degrees of freedom
+Multiple R-squared:  0.9949,	Adjusted R-squared:  0.9937 
+F-statistic: 873.5 on 20 and 90 DF,  p-value: < 2.2e-16
+
+
+> summary(var3a$varresult$LOGPFABWC)
+Length  Class   Mode 
+     0   NULL   NULL 
+
+> summary(var3b$varresult$LOGPFABWC)
+Length  Class   Mode 
+     0   NULL   NULL 
+
+> summary(var3c$varresult$LOGPFABWC)
+Length  Class   Mode 
+     0   NULL   NULL 
