@@ -2,6 +2,9 @@ source("rSettings.R")
 library(glmnet)
 library(Matrix)
 library(plotly)
+library(fastDummies)
+library(broom)
+l
 
 projDir<-"C:/My Crap/Lurn/Class/Bayesian Econometrics(JHU)/Project/"
 codeDir<-"C:/My Crap/Lurn/Class/Bayesian Econometrics(JHU)/Project/Code/"
@@ -75,13 +78,25 @@ for (fileName in dataList){
     clusterMeltDF<-rbind(clusterMeltDF,tempMeltDF[tempMeltDF$Year==max(tempMeltDF$Year),])
   }
 }
+clusterMeltDF$Year<-NULL
 
+regionGroupingsDF<-read.csv(paste(dataDir,"RegionGroupings.csv", sep=""))
+
+#tempSummDF<-data.frame()
+for (colName in colnames(regionGroupingsDF)[2:length(colnames(regionGroupingsDF))]){
+  tempDF<-regionGroupingsDF[,c("Region", colName)]
+  colnames(tempDF)<-c("Region","Value")
+  tempDF$Series<-colName
+  tempDF<-tempDF[,colnames(clusterMeltDF)]
+  clusterMeltDF<-rbind(clusterMeltDF,tempDF)
+}
 
 yName<-"GrossRegionalProduct"
 xNameList<-unique(regMeltDF$Series)
 xNameList<-xNameList[!xNameList %in% yName]
 regionsList<-unique(regMeltDF$Region)
 clusterFieldList<-unique(clusterMeltDF$Series)
+geoClusterFieldList<-c("RegionGroup1","EconomicRegion1", "EconomicRegion2")
 
 ##########LASSO######################
 
@@ -185,6 +200,187 @@ for (tempRegion in regionNames[c(1:25,27:31)]){
   #print(t(row.names(coefDF)[coefDF$X1!=0]))
 }
 
-
+modelXNames<-c("ElectricityConsumption_YrYr","ImportsExports_YrYr","RetailSales_YrYr","HouseholdConsumption_YrYr")
+modelYName<-"GrossRegionalProduct_YrYr"
 ######Clustering
 
+clusterValsDF<-dcast(clusterMeltDF[!clusterMeltDF$Series %in% geoClusterFieldList,], Region~Series, value.var="Value")
+
+clusterSS<-c()
+for (k in c(1:10)){
+  clusterSS<-c(clusterSS,kmeans(clusterValsDF[,colnames(clusterValsDF)!="Region"],k)$tot.withinss)
+}
+
+plot(clusterSS)
+
+k<-3
+
+regionClusterDF<-data.frame(Region=clusterValsDF$Region,
+                       DemoCluster=kmeans(clusterValsDF[,colnames(clusterValsDF)!="Region"],
+                                          k)$cluster)
+regionGroupingsDF<-merge(regionGroupingsDF, regionClusterDF, by="Region")
+clusterList<-unique(regionClusterDF$DemoCluster)
+
+#######Master Data Frame
+
+dummy_cols(regionClusterDF$DemoCluster)
+
+regionDataDF<-regionClusterDF
+
+regionDataDF<-cbind(regionDataDF,
+                    dummy_cols(regionClusterDF$DemoCluster)[,2:length(colnames(dummy_cols(regionClusterDF$DemoCluster)))])
+colnames(regionDataDF)[3:length(colnames(regionDataDF))]<-c("cluster1","cluster2","cluster3")
+regionDataDF<-cbind(regionDataDF,
+                    dummy_cols(regionGroupingsDF$RegionGroup1)[,2:length(colnames(dummy_cols(regionGroupingsDF$RegionGroup1)))])
+colnames(regionDataDF)<-gsub("\\.data_","RegGroup1_",colnames(regionDataDF) )
+regionDataDF<-cbind(regionDataDF,
+                    dummy_cols(regionGroupingsDF$EconomicRegion1)[,2:length(colnames(dummy_cols(regionGroupingsDF$EconomicRegion1)))])
+colnames(regionDataDF)<-gsub("\\.data_","EcoReg1_",colnames(regionDataDF) )
+regionDataDF<-cbind(regionDataDF,
+                    dummy_cols(regionGroupingsDF$EconomicRegion2)[,2:length(colnames(dummy_cols(regionGroupingsDF$EconomicRegion2)))])
+colnames(regionDataDF)<-gsub("\\.data_","EcoReg2_",colnames(regionDataDF) )
+colnames(regionDataDF)[1]<-"Region"
+
+regionRegDataDF<-dcast(regMeltDF, Region+Year~Series, value.var="Value")
+regionRegDataDF<-lagGrowthCalcAndAppend(regionRegDataDF, colNames=c(yName,xRegNames), tempLag=1)
+regionRegDataDF<-regionRegDataDF[,c(modelYName, "Year", "Region", modelXNames)]
+regionRegDataDF<-merge(regionRegDataDF, regionDataDF,by="Region", all.x=TRUE)
+regionRegDataDF<-merge(regionRegDataDF, regionGroupingsDF,by="Region", all.x=TRUE)
+regionRegDataDF<-regionRegDataDF[complete.cases(regionRegDataDF),]
+
+###Basic Regression
+
+regionLM0<-lm(GrossRegionalProduct_YrYr~., data=regionRegDataDF[,c(modelYName, modelXNames)])
+tidy(regionLM0)
+plot1<-ggplot(data.frame("residuals"=regionLM0$residuals, 
+                         "Year"=as.factor(regionRegDataDF$Year)))+
+      geom_boxplot(aes(x=Year, y=residuals, fill=Year))+theme2+
+      theme(axis.text.x = element_text(size=12, angle=90))
+print(plot1)
+
+#Basic Regression by Region
+regionLM0aResults<-data.frame()
+regionLM0aResids<-data.frame()
+for (region in regionsList){
+  regionLM0a<-lm(GrossRegionalProduct_YrYr~., 
+                data=regionRegDataDF[regionRegDataDF$Region==region,
+                                     c(modelYName, modelXNames)])
+  tempDF<-data.frame(t(tidy(regionLM0a)$estimate))
+  tempDF$Measure<-"coef"
+  tempDF2<-data.frame(t(tidy(regionLM0a)$p.value))
+  tempDF2$Measure<-"pval"
+  tempDF<-rbind(tempDF,tempDF2)
+  tempDF$Region<-region
+  regionLM0aResults<-rbind(regionLM0aResults,tempDF)
+  tempDF3<-data.frame(regionLM0a$residuals)
+  tempDF3$Region<-region
+  tempDF3$Year<-regionRegDataDF[regionRegDataDF$Region==region,
+                                "Year"]
+  regionLM0aResids<-rbind(regionLM0aResids,tempDF3)
+}
+colnames(regionLM0aResults)[1:5]<-tidy(regionLM0a)$term
+colnames(regionLM0aResids)<-c("residuals", "Region", "Year")
+
+meltRegionLM0aResults<-melt(regionLM0aResults[regionLM0aResults$Measure=="coef",], id=c("Region"))
+
+meltRegionLM0aResults<-meltRegionLM0aResults[!(meltRegionLM0aResults$variable %in% c("(Intercept)", "Measure")),]
+
+plot2<-ggplot(data=meltRegionLM0aResults,aes(x=as.numeric(value), fill=variable)) + geom_density(alpha=0.5)+
+  theme1+theme(axis.text.x = element_text(size=12, angle=90))+labs(x ="Coef Value")
+print(plot2)
+
+#NEEDS CLEANING UP
+plot3<-ggplot(data=regionLM0aResids,
+              aes(x=Year,y=residuals, 
+              color=Region, shape=Region))+
+              geom_line()+geom_point()+
+              scale_colour_manual(name = "Region",
+                      labels = regionsList,
+                      values = rep_len(hcl(h = seq(15, 375, length = 11),
+                                           l = 65, c = 100),
+                                       length(regionsList))) +   
+              scale_shape_manual(name = "Region",
+                     labels = regionsList,
+                     values = rep_len(c(1:5),
+                                      length(regionsList)))+
+              theme1
+print(plot3)
+
+tempRegionsList<-regionsList[26:33]
+
+plot3a<-ggplot(data=regionLM0aResids[regionLM0aResids$Region %in% tempRegionsList,],
+              aes(x=Year,y=residuals, 
+                  color=Region, shape=Region))+
+  geom_line()+geom_point()+
+  scale_colour_manual(name = "Region",
+                      labels = tempRegionsList,
+                      values = rep_len(hcl(h = seq(15, 375, length = 5),
+                                           l = 65, c = 100),
+                                       length(tempRegionsList))) +   
+  scale_shape_manual(name = "Region",
+                     labels = tempRegionsList,
+                     values = rep_len(c(1:5),
+                                      length(tempRegionsList)))+
+  theme1
+print(plot3a)
+
+#Group Coef Results by Region Definitions
+
+regionGroupLM0Results<-merge(regionLM0aResults, 
+                             regionGroupingsDF,
+                          all.x=TRUE,
+                         by="Region")
+
+meltClusterLM0Results<-melt(regionGroupLM0Results[regionGroupLM0Results$Measure=="coef",], id=c("DemoCluster"))
+
+plot4<-ggplot(data=meltClusterLM0Results[meltClusterLM0Results$variable %in% modelXNames,],
+              aes(x=variable, y=as.numeric(value), fill=as.factor(DemoCluster)))+
+  geom_boxplot()+theme1+
+  theme(axis.text.x = element_text(size=9, angle=15))+labs(x ="Coef", y="Coef Value", fill="Cluster")
+print(plot4)
+
+meltRG1rLM0Results<-melt(regionGroupLM0Results[regionGroupLM0Results$Measure=="coef",], id=c("RegionGroup1"))
+
+plot5<-ggplot(data=meltRG1rLM0Results[meltRG1rLM0Results$variable %in% modelXNames,],
+              aes(x=variable, y=as.numeric(value), fill=as.factor(RegionGroup1)))+
+  geom_boxplot()+theme1+
+  theme(axis.text.x = element_text(size=9, angle=15))+labs(x ="Coef", y="Coef Value", fill="Region Group 1")
+print(plot5)
+
+meltER1rLM0Results<-melt(regionGroupLM0Results[regionGroupLM0Results$Measure=="coef",], id=c("EconomicRegion1"))
+
+plot6<-ggplot(data=meltER1rLM0Results[meltER1rLM0Results$variable %in% modelXNames,],
+              aes(x=variable, y=as.numeric(value), fill=as.factor(EconomicRegion1)))+
+  geom_boxplot()+theme1+
+  theme(axis.text.x = element_text(size=9, angle=15))+labs(x ="Coef", y="Coef Value", fill="Economic Region 1")
+print(plot6)
+
+
+regionGroupLM0Resids<-merge(regionLM0aResids, 
+                             regionGroupingsDF,
+                             all.x=TRUE,
+                             by="Region")
+
+meltClusterLM0Resids<-melt(regionGroupLM0Resids, id=c("DemoCluster"))
+
+plot8<-ggplot(data=meltClusterLM0Resids[meltClusterLM0Resids$variable=="residuals",],
+              aes(x=variable, y=as.numeric(value), fill=as.factor(DemoCluster)))+
+  geom_boxplot()+theme1+
+  theme(axis.text.x = element_blank())+labs(x ="Cluster", y="Residuals", fill="Cluster")
+print(plot8)
+
+meltRG1rLM0Resids<-melt(regionGroupLM0Resids, id=c("RegionGroup1"))
+
+plot9<-ggplot(data=meltRG1rLM0Resids[meltRG1rLM0Resids$variable=="residuals",],
+              aes(x=variable, y=as.numeric(value), fill=as.factor(RegionGroup1)))+
+  geom_boxplot()+theme1+
+  theme(axis.text.x = element_blank())+labs(x ="Coef", y="Coef Value", fill="Region Group 1")
+print(plot9)
+
+meltER1rLM0Resids<-melt(regionGroupLM0Resids, id=c("EconomicRegion1"))
+
+plot10<-ggplot(data=meltER1rLM0Resids[meltER1rLM0Resids$variable=="residuals",],
+              aes(x=variable, y=as.numeric(value), fill=as.factor(EconomicRegion1)))+
+  geom_boxplot()+theme1+
+  theme(axis.text.x = element_blank())+labs(y="Coef Value", fill="Economic Region 1")
+print(plot10)
