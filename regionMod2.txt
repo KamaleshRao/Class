@@ -1,0 +1,35 @@
+
+## Varying-intercept, varying-slope models ##
+
+ # Simple model with no correlation between intercepts and slopes
+
+model {
+  for (i in 1:n){
+    y[i] ~ dnorm (y.hat[i], tau.y)
+    y.hat[i] <- a[regionGroup[i]] + b1[regionGroup[i]]*x1[i]+b2[regionGroup[i]]*x2[i]+b3[regionGroup[i]]*x3[i]+b4[regionGroup[i]]*x4[i]
+  }
+  tau.y <- pow(sigma.y, -2)
+  sigma.y ~ dunif (0, 100)
+
+  for (j in 1:J){
+    a[j] ~ dnorm (a.hat[j], tau.a)
+    b1[j] ~ dnorm (b1.hat[j], tau.b)
+    b2[j] ~ dnorm (b2.hat[j], tau.b)
+    b3[j] ~ dnorm (b3.hat[j], tau.b)
+    b4[j] ~ dnorm (b4.hat[j], tau.b)
+    a.hat[j] <- mu.a
+    b1.hat[j] <- mu.b1
+    b2.hat[j] <- mu.b2
+    b3.hat[j] <- mu.b3
+    b4.hat[j] <- mu.b4
+  }
+  mu.a ~ dnorm (0, .0001)
+  mu.b1 ~ dnorm (0, .0001)
+  mu.b2 ~ dnorm (0, .0001)
+  mu.b3 ~ dnorm (0, .0001)
+  mu.b4 ~ dnorm (0, .0001)
+  tau.a <- pow(sigma.a, -2)
+  tau.b <- pow(sigma.b, -2)
+  sigma.a ~ dunif (0, 100)
+  sigma.b ~ dunif (0, 100)
+}

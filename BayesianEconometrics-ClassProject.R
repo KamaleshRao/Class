@@ -1,18 +1,21 @@
+####Declare Libraries, Set Sources, Define Directories#############
+
 source("rSettings.R")
 library(glmnet)
 library(Matrix)
 library(plotly)
 library(fastDummies)
 library(broom)
-l
+
 
 projDir<-"C:/My Crap/Lurn/Class/Bayesian Econometrics(JHU)/Project/"
 codeDir<-"C:/My Crap/Lurn/Class/Bayesian Econometrics(JHU)/Project/Code/"
 dataDir<-"C:/My Crap/Lurn/Class/Bayesian Econometrics(JHU)/Project/Data/"
 setwd(codeDir)
 
-####Data Prep###################
+####Helper Functions###################
 
+###define growth calc functions
 lagGrowthCalc<-function(tempVec, tempLag){
   return((tempVec/Lag(tempVec, tempLag)[,1])-1)
 }
@@ -33,6 +36,8 @@ lagGrowthCalcAndAppend<-function(tempData, colNames, tempLag=12, tempName="YrYr"
   return(tempData)
 }
 
+### Basic Review Function
+
 ReviewDF<-function(tempDF, n=5){
     print(paste("Dim:",dim(tempDF)))
     print("Col Names:")
@@ -43,6 +48,11 @@ ReviewDF<-function(tempDF, n=5){
     print(tail(tempDF),n)
 }
 
+
+####Data Prep##############################
+
+
+###Pull in CNA Data Sets
 filePreFix<-"AnnualbyProvince-"
 
 dataList<-c()
@@ -60,6 +70,8 @@ dateColName<-"Year"
 regMeltDF<-data.frame()
 clusterMeltDF<-data.frame()
 
+
+###Melt Data Set of Economic Time-Series
 for (fileName in dataList){
   fieldName<-gsub(".csv", "", fileName)
   print(fieldName)
@@ -82,6 +94,7 @@ clusterMeltDF$Year<-NULL
 
 regionGroupingsDF<-read.csv(paste(dataDir,"RegionGroupings.csv", sep=""))
 
+###Melt Data Set of Demographics Etc
 #tempSummDF<-data.frame()
 for (colName in colnames(regionGroupingsDF)[2:length(colnames(regionGroupingsDF))]){
   tempDF<-regionGroupingsDF[,c("Region", colName)]
@@ -100,6 +113,8 @@ geoClusterFieldList<-c("RegionGroup1","EconomicRegion1", "EconomicRegion2")
 
 ##########LASSO######################
 
+
+###UNNECCESSARY
 formatErrorMat<-function(tempErrorMat, matType="All"){
   dimnames(tempErrorMat) = list(alphaVec, c(1:100))
   tempErrorDF<-melt(tempErrorMat)
@@ -107,6 +122,8 @@ formatErrorMat<-function(tempErrorMat, matType="All"){
   tempErrorDF$Sector<-yName
   tempErrorDF$Type<-matType
   return(data.table(tempErrorDF))}
+
+###Setup
 
 xRegNames<-xNameList
 
@@ -136,6 +153,7 @@ print(startTime)
 i<-1
 tempRegion<-regionNames[i]
 
+###Model Loop
 coefNames<-paste(c(yName,xRegNames), "_YrYr",sep="")
 coefNames<-c(coefNames,paste(coefNames, "_Lag_1",sep=""))
 coefNames<-c(coefNames, "(Intercept)")
@@ -202,6 +220,7 @@ for (tempRegion in regionNames[c(1:25,27:31)]){
 
 modelXNames<-c("ElectricityConsumption_YrYr","ImportsExports_YrYr","RetailSales_YrYr","HouseholdConsumption_YrYr")
 modelYName<-"GrossRegionalProduct_YrYr"
+
 ######Clustering
 
 clusterValsDF<-dcast(clusterMeltDF[!clusterMeltDF$Series %in% geoClusterFieldList,], Region~Series, value.var="Value")
@@ -248,7 +267,37 @@ regionRegDataDF<-merge(regionRegDataDF, regionDataDF,by="Region", all.x=TRUE)
 regionRegDataDF<-merge(regionRegDataDF, regionGroupingsDF,by="Region", all.x=TRUE)
 regionRegDataDF<-regionRegDataDF[complete.cases(regionRegDataDF),]
 
-###Basic Regression
+###Format BUGS data take 2
+
+regionRegDataOPENBUGSDF<-regionRegDataDF[,c("Region","GrossRegionalProduct_YrYr","Year",                       
+                                            "ElectricityConsumption_YrYr","ImportsExports_YrYr",
+                                            "RetailSales_YrYr", "HouseholdConsumption_YrYr", 
+                                            "DemoCluster","EconomicRegion1","RegionGroup1")]
+
+regionRegDataOPENBUGSDF$Region<-as.numeric(factor(regionRegDataOPENBUGSDF$Region))
+regionRegDataOPENBUGSDF$EconomicRegion1<-as.numeric(factor(regionRegDataOPENBUGSDF$EconomicRegion1))
+regionRegDataOPENBUGSDF$RegionGroup1<-as.numeric(factor(regionRegDataOPENBUGSDF$RegionGroup1))
+
+colnames(regionRegDataOPENBUGSDF)<-c("Region", "GDPYY", "Year", "ElecYY", "ImpExpYY", "RetSalYY", "ConsYY", "DCluster", "EcoReg1", "RegGr1")
+colnames(regionRegDataOPENBUGSDF)<-paste(colnames(regionRegDataOPENBUGSDF),"[]", sep="")
+write.table(regionRegDataOPENBUGSDF,file="regionRegData.txt", row.names = FALSE, quote=FALSE)
+
+###Format BUGS data take 2
+
+regionGroupField<-regionRegDataDF$EconomicRegion1
+n <- dim(regionRegDataDF)[1]
+y <- regionRegDataDF$GrossRegionalProduct_YrYr
+x1 <- regionRegDataDF$ElectricityConsumption_YrYr
+x2 <- regionRegDataDF$ImportsExports_YrYr
+x3 <- regionRegDataDF$RetailSales_YrYr
+x4 <- regionRegDataDF$HouseholdConsumption_YrYr
+J <- length(unique(regionGroupField))
+regionGroup<-as.numeric(factor(regionGroupField))
+## Call Bugs from R (remember to save the radon.1.bug file before)
+regionData.bugs <- list ("n", "J", "x1","x2","x3","x4", "y", "regionGroup")
+regionGroupNames<-levels(factor(regionGroupField))
+
+###Basic Regression#########################
 
 regionLM0<-lm(GrossRegionalProduct_YrYr~., data=regionRegDataDF[,c(modelYName, modelXNames)])
 tidy(regionLM0)
@@ -384,3 +433,79 @@ plot10<-ggplot(data=meltER1rLM0Resids[meltER1rLM0Resids$variable=="residuals",],
   geom_boxplot()+theme1+
   theme(axis.text.x = element_blank())+labs(y="Coef Value", fill="Economic Region 1")
 print(plot10)
+
+###BUGS Code########
+
+regionMod.inits <- function (){
+  list (a=rnorm(J), b1=rnorm(1),b2=rnorm(1),b3=rnorm(1),
+        b4=rnorm(1),mu.a=rnorm(1),
+        sigma.y=runif(1), sigma.a=runif(1))
+}
+region.parameters <- c ("a", "b1","b2", "b3", "b4", "mu.a", "sigma.y", "sigma.a")
+
+regionM1.bugs.1 <- bugs (regionData.bugs, regionMod.inits, region.parameters, "regionMod1.txt", n.iter=1000,
+                      working.directory=NULL, clearWD=TRUE, debug=TRUE )
+
+plot(regionM1.bugs.1, display.parallel = FALSE)
+
+str(regionM1.bugs.1)
+
+alphaSim<-regionM1.bugs.1$sims.list$a
+colnames(alphaSim)<-paste("a", regionGroupNames, sep="_")
+meltAlphaSim<-melt(alphaSim)[,c(2:3)]
+
+colnames(meltAlphaSim)<-c("Variable", "Value")
+plot11<-ggplot(data=meltAlphaSim,aes(x=as.numeric(Value), fill=Variable)) + geom_density(alpha=0.5)+theme1
+print(plot11)
+
+###Model 2: Group Alpha, Group Beta
+
+regionMod.inits <- function (){
+  list (a=rnorm(J), b1=rnorm(1),b2=rnorm(1),b3=rnorm(1),
+        b4=rnorm(1),mu.a=rnorm(1),mu.b1=rnorm(1),mu.b2=rnorm(1),
+        mu.b3=rnorm(1),mu.b4=rnorm(1),
+        sigma.y=runif(1), sigma.a=runif(1))
+}
+region.parameters <- c ("a", "b1","b2", "b3", "b4", "mu.a", "sigma.y", "sigma.a")
+
+regionM2.bugs.2 <- bugs (regionData.bugs, regionMod.inits, region.parameters, "regionMod2.txt", n.iter=1000,
+                         working.directory=NULL, clearWD=TRUE, debug=TRUE )
+
+plot(regionM2.bugs.2, display.parallel = FALSE)
+
+alphaSim<-regionM2.bugs.2$sims.list$a
+colnames(alphaSim)<-paste("a", regionGroupNames, sep="_")
+meltAlphaSim<-melt(alphaSim)[,c(2:3)]
+
+colnames(meltAlphaSim)<-c("Variable", "Value")
+plot12<-ggplot(data=meltAlphaSim,aes(x=as.numeric(Value), fill=Variable)) + geom_density(alpha=0.5)+theme1
+print(plot12)
+
+betaSim1<-regionM2.bugs.2$sims.list$b1
+colnames(betaSim1)<-paste("b1", regionGroupNames, sep="_")
+betaSim2<-regionM2.bugs.2$sims.list$b2
+colnames(betaSim2)<-paste("b2", regionGroupNames, sep="_")
+betaSim3<-regionM2.bugs.2$sims.list$b3
+colnames(betaSim3)<-paste("b3", regionGroupNames, sep="_")
+betaSim4<-regionM2.bugs.2$sims.list$b4
+colnames(betaSim4)<-paste("b4", regionGroupNames, sep="_")
+
+betaSim<-cbind(betaSim1, betaSim2, betaSim3, betaSim4)
+
+meltBetaSim<-melt(betaSim)[,c(2:3)]
+
+colnames(meltBetaSim)<-c("Variable", "Value")
+plot13a<-ggplot(data=meltBetaSim[meltBetaSim$Variable %in% colnames(betaSim1),],aes(x=as.numeric(Value), fill=Variable)) + geom_density(alpha=0.5)+theme1
+print(plot13a)
+
+colnames(meltBetaSim)<-c("Variable", "Value")
+plot13b<-ggplot(data=meltBetaSim[meltBetaSim$Variable %in% colnames(betaSim2),],aes(x=as.numeric(Value), fill=Variable)) + geom_density(alpha=0.5)+theme1
+print(plot13b)
+
+colnames(meltBetaSim)<-c("Variable", "Value")
+plot13c<-ggplot(data=meltBetaSim[meltBetaSim$Variable %in% colnames(betaSim3),],aes(x=as.numeric(Value), fill=Variable)) + geom_density(alpha=0.5)+theme1
+print(plot13c)
+
+colnames(meltBetaSim)<-c("Variable", "Value")
+plot13d<-ggplot(data=meltBetaSim[meltBetaSim$Variable %in% colnames(betaSim4),],aes(x=as.numeric(Value), fill=Variable)) + geom_density(alpha=0.5)+theme1
+print(plot13d)

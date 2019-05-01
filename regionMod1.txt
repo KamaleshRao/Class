@@ -1,0 +1,24 @@
+# Bugs code for multilevel model for radon
+# with bsmt as an individual predictor
+
+# varying-intercept model
+
+model {
+  for (i in 1:n){
+    y[i] ~ dnorm (y.hat[i], tau.y)
+    y.hat[i] <- a[regionGroup[i]] + b1*x1[i]+b2*x2[i]+b3*x3[i]+b4*x4[i]
+  }
+  b1 ~ dnorm (0, .0001)
+  b2 ~ dnorm (0, .0001)
+  b3 ~ dnorm (0, .0001)
+  b4 ~ dnorm (0, .0001)
+  tau.y <- pow(sigma.y, -2)
+  sigma.y ~ dunif (0, 100)
+
+  for (j in 1:J){
+    a[j] ~ dnorm (mu.a, tau.a)
+  }
+  mu.a ~ dnorm (0, .0001)
+  tau.a <- pow(sigma.a, -2)
+  sigma.a ~ dunif (0, 100)
+}
